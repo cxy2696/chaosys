@@ -1,0 +1,5 @@
+variant,scalar_ns,neon1_mtps,neonN_mtps
+O2,16.44,339.0,1369.8
+O3,16.72,343.1,1376.5
+O3+native,16.48,303.2,1353.8
+O3+native+fast-math,17.39,364.7,1468.9

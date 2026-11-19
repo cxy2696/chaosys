@@ -1,0 +1,11 @@
+.DS_Store
+__pycache__/
+cpp/build/
+python/build/
+python/*.egg-info/
+python/dist/
+cpp/results/raw/
+cpp/results/flags_raw.csv
+
+# Benchmark output when run from the repository root
+/results/

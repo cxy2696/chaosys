@@ -1,0 +1,8 @@
+variant,threads,mtraj_steps_per_s,gflops,speedup
+AoS scalar (baseline),1,59.3,4.7,1.00
+SoA scalar (auto-vec),1,344.5,27.2,5.81
+SoA scalar + threads,11,1441.9,113.9,24.33
+SoA NEON,1,360.1,28.4,6.08
+SoA NEON + threads,11,1353.9,107.0,22.84
+SoA NEON fast-math,1,352.9,27.9,5.95
+SoA NEON fast-math + threads,11,1536.5,121.4,25.92

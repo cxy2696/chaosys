@@ -1,0 +1,5 @@
+variant,ns_per_step,msteps_per_s,gbps_out,bytes_out
+euler_naive (push_back),3.69,270.8,6.50,120000000
+rk4_naive (push_back),16.62,60.2,1.44,120000000
+rk4_scalar (in-place),16.77,59.6,0.00,0
+rk4_scalar + decimated store,17.52,57.1,0.14,12000000

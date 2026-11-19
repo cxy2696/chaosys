@@ -1,0 +1,59 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: cmake -S cpp -B build -DCMAKE_BUILD_TYPE=Release -DCHAOSYS_BUILD_BENCH=ON
+      - name: Build
+        run: cmake --build build -j
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+      - name: CLI smoke
+        run: |
+          ./build/chaosys_cli systems
+          ./build/chaosys_cli traj --steps 10 --stride 5 > /dev/null
+          ./build/chaosys_cli lyapunov --transient 100 --segment 10 --segments 10 > /dev/null
+          ./build/chaosys_cli dimension --steps 500 --transient 100 --max-points 100 > /dev/null
+          ! ./build/chaosys_cli traj --steps -1 > /dev/null 2>&1
+          ! ./build/chaosys_cli sweep --rho-step 1e-20 > /dev/null 2>&1
+      - name: Install
+        run: cmake --install build --prefix "$PWD/install"
+      - name: Installed C consumer
+        run: |
+          export PKG_CONFIG_PATH="$PWD/install/lib/pkgconfig"
+          cc cpp/tests/consumer.c $(pkg-config --cflags --libs chaosys) \
+            -Wl,-rpath,"$PWD/install/lib" -o consumer
+          ./consumer
+      - name: Python binding
+        run: |
+          python3 -m venv .venv
+          . .venv/bin/activate
+          python -m pip install --no-deps ./python
+          CHAOSYS_LIB="$(find "$PWD/install" -name 'libchaosys.*' -type f | head -1)" \
+            python -m unittest discover -s python/tests -v
+
+  sanitize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: >
+          cmake -S cpp -B build-san -DCMAKE_BUILD_TYPE=Debug
+          -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer"
+          -DCMAKE_C_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer"
+          -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address,undefined"
+          -DCMAKE_SHARED_LINKER_FLAGS="-fsanitize=address,undefined"
+      - name: Build
+        run: cmake --build build-san -j
+      - name: Test
+        run: ctest --test-dir build-san --output-on-failure

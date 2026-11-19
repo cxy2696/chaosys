@@ -1,0 +1,11 @@
+prefix=${pcfiledir}/@CHAOSYS_PC_PREFIX_REL@
+exec_prefix=${prefix}
+libdir=${prefix}/@CMAKE_INSTALL_LIBDIR@
+includedir=${prefix}/@CMAKE_INSTALL_INCLUDEDIR@
+
+Name: chaosys
+Description: Chaotic dynamics simulation and analysis library
+Version: @PROJECT_VERSION@
+Libs: -L${libdir} -lchaosys
+Libs.private: -lpthread @CHAOSYS_PC_CXX_RUNTIME@
+Cflags: -I${includedir}
